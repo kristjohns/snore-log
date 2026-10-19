@@ -18,7 +18,7 @@ Use **Test the microphone** first to check that a few fake snores push the snori
 - **Snoring time.** A minute counts as snoring when it has at least two snore sounds, since snoring repeats with each breath.
 - **Loudness**, in dB above the room's own background noise. It isn't an absolute sound level, because phone microphones aren't calibrated. Light is under 15 dB above the room, moderate 15–25 dB, loud over 25 dB.
 - **Timeline** of the night, with stretches that weren't recorded marked.
-- **Short clips** (12 s, at most one every five minutes and 40 per night, the loudest kept), boosted so they're audible.
+- **Short clips** that follow the snoring: from 4 s before the first snore to 3 s after the last, 12–30 s long. At most one starts every five minutes, and a night keeps 40, the loudest. They're boosted so they're audible.
 - **Other loud sounds** that weren't snoring, such as coughs or talking.
 - **History** of snoring per night, and a comparison of nights with and without each tag.
 

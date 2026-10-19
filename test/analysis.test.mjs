@@ -1,7 +1,7 @@
 // node --test test/
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { NightAnalyzer, summarize, factorEffects, timelineBins, isSnoringMinute } from "../js/analysis.js";
+import { CLIP, NightAnalyzer, clipLength, summarize, factorEffects, timelineBins, isSnoringMinute } from "../js/analysis.js";
 
 // Simulates a night: quiet room at -60 dBFS, with `sound(t)` returning
 // { db, snore, label, score } for louder moments.
@@ -90,4 +90,18 @@ test("loud frames next to snoring are not other sounds; one bark with two labels
     return null;
   });
   assert.deepEqual(summarize({ start: 0, end: 240000, minutes: a.minutes }).sounds, [["Animal", 1]]);
+});
+
+test("clips follow the snoring, between 12 and 30 seconds", () => {
+  // Clip starts 4 s before the first snore at 0 s.
+  const start = -CLIP.before;
+  // A single snore: the clip ends at the 12 s minimum.
+  assert.equal(clipLength(start, 5, 1), null);
+  assert.equal(clipLength(start, 8, 1), 12);
+  // Snoring for 14 s: kept going while snores keep coming, ends 3 s after the last one.
+  assert.equal(clipLength(start, 14, 13), null, "still snoring");
+  assert.equal(clipLength(start, 18, 14), null, "pause between breaths");
+  assert.equal(clipLength(start, 20, 14), 21);
+  // Snoring that goes on: cut at 30 s.
+  assert.equal(clipLength(start, 26, 25.5), 30);
 });

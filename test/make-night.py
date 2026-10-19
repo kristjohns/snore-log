@@ -2,7 +2,8 @@
 
 Timeline (mm:ss): quiet with a cough at 0:30, snoring 0:50-2:50, quiet with a dog
 and a knock at 3:00 and 3:20, snoring 3:40-4:40, quiet until 5:00.
-Usage: python3 test/make-night.py <out.wav>
+With --short: 100 s of quiet with 10 s of snoring at 0:30.
+Usage: python3 test/make-night.py <out.wav> [--short]
 """
 import glob
 import os
@@ -37,7 +38,8 @@ def room_noise(n):
     return x * (10 ** (-58 / 20) / np.sqrt(np.mean(x**2)))
 
 
-night = room_noise(300 * RATE)
+short = "--short" in sys.argv
+night = room_noise((100 if short else 300) * RATE)
 
 
 def place(clip, start_s):
@@ -47,6 +49,10 @@ def place(clip, start_s):
 
 
 snores = sorted(glob.glob(os.path.join(HERE, "audio", "snoring--*.wav")))
+if short:
+    for i, path in enumerate(snores[:2]):
+        place(at_peak(load(path), -14), 30 + 5 * i)
+    snores = []
 pos = 50.0
 for path in snores[:24]:
     place(at_peak(load(path), -14), pos)
@@ -55,9 +61,10 @@ pos = 220.0
 for path in snores[24:36]:
     place(at_peak(load(path), -20), pos)
     pos += 5
-place(at_peak(load(sorted(glob.glob(os.path.join(HERE, "audio", "coughing--*.wav")))[4]), -12), 30)
-place(at_peak(load(sorted(glob.glob(os.path.join(HERE, "audio", "dog--*.wav")))[3]), -12), 180)
-place(at_peak(load(sorted(glob.glob(os.path.join(HERE, "audio", "door_wood_knock--*.wav")))[2]), -12), 200)
+if not short:
+    place(at_peak(load(sorted(glob.glob(os.path.join(HERE, "audio", "coughing--*.wav")))[4]), -12), 30)
+    place(at_peak(load(sorted(glob.glob(os.path.join(HERE, "audio", "dog--*.wav")))[3]), -12), 180)
+    place(at_peak(load(sorted(glob.glob(os.path.join(HERE, "audio", "door_wood_knock--*.wav")))[2]), -12), 200)
 
 pcm = (np.clip(night, -1, 1) * 32767).astype(np.int16)
 with wave.open(sys.argv[1], "wb") as w:

@@ -1,6 +1,6 @@
 // Keeps the app and the snore model available offline.
 // Bump VERSION with every release so phones pick up the new files.
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = `snore-log-${VERSION}`;
 const CORE = [
   "./",
@@ -27,7 +27,7 @@ const CORE = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE.map((url) => new Request(url, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {

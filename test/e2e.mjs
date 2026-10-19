@@ -1,6 +1,7 @@
-// End-to-end run of a whole (short) night in headless Chromium, using
-// test/results/night.wav as the microphone. Takes about six minutes.
+// End-to-end run of a whole (short) night in headless Chromium, using a WAV file
+// as the microphone. Takes as long as the night plus about a minute.
 // Usage: python3 test/make-night.py test/results/night.wav && node test/e2e.mjs
+//        NIGHT=night-short.wav NIGHT_SECONDS=100 node test/e2e.mjs
 import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { readFile, writeFile } from "node:fs/promises";
@@ -30,7 +31,7 @@ const browser = await chromium.launch({
   args: [
     "--use-fake-ui-for-media-stream",
     "--use-fake-device-for-media-stream",
-    `--use-file-for-fake-audio-capture=${join(out, "night.wav")}`,
+    `--use-file-for-fake-audio-capture=${join(out, process.env.NIGHT || "night.wav")}`,
     "--autoplay-policy=no-user-gesture-required",
   ],
 });
@@ -61,11 +62,11 @@ await page.waitForSelector("#recording:not([hidden])");
 log("recording");
 await page.waitForTimeout(8000);
 await shot("02-recording");
-await page.waitForTimeout(100000);
+await page.waitForTimeout((NIGHT_SECONDS / 2 - 8) * 1000);
 log("mid-night:", await page.textContent("#rec-meta"));
-await page.waitForTimeout(25000);
+await page.waitForTimeout(Math.max(NIGHT_SECONDS / 4, 16) * 1000);
 await shot("03-recording-dim");
-await page.waitForTimeout((NIGHT_SECONDS - 133 + 4) * 1000);
+await page.waitForTimeout((NIGHT_SECONDS / 4 + 4) * 1000);
 log("end:", await page.textContent("#rec-meta"));
 
 await page.dispatchEvent("#hold-stop", "pointerdown");

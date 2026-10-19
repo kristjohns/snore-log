@@ -12,6 +12,20 @@ export const SENSITIVITY = { low: 0.5, normal: 0.3, high: 0.15 };
 const MIN_EVENTS_PER_MINUTE = 2;
 const MIN_SNORE_FRAMES_PER_MINUTE = 3;
 
+// Saved clips follow the snoring: they start a little before the first snore and
+// end a little after the last one, between `min` and `max` seconds long.
+export const CLIP = { before: 4, after: 3, quiet: 6, min: 12, max: 30 };
+
+// Length in seconds of a clip that started at startS, once it should end at nowS;
+// null while it should keep recording. The snoring has stopped when there has been
+// no snore for `quiet` seconds, which is longer than the pause between two breaths.
+export function clipLength(startS, nowS, lastSnoreS) {
+  const length = nowS - startS;
+  if (length >= CLIP.max) return CLIP.max;
+  if (length < CLIP.min || nowS - lastSnoreS < CLIP.quiet) return null;
+  return Math.max(CLIP.min, Math.min(length, lastSnoreS + CLIP.after - startS));
+}
+
 // Loudness of a snoring minute, in dB above the room's background noise.
 export const TIERS = [
   { id: 1, name: "Light", min: -Infinity },

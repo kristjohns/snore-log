@@ -6,7 +6,7 @@ export const RATE = 16000;
 const CHUNK = 1600; // 100 ms
 const WINDOW = 15600; // 0.975 s, YAMNet's input length
 const HOP_CHUNKS = 5; // classify every 0.5 s
-const RING_SECONDS = 20;
+const RING_SECONDS = 40; // longer than the longest clip
 const SNORING = "Snoring";
 
 let classifierPromise = null;
@@ -30,7 +30,6 @@ export class Listener {
   constructor() {
     this.ring = new Float32Array(RATE * RING_SECONDS);
     this.written = 0;
-    this.pending = []; // clip captures waiting for audio
     this.onLevel = null; // (timeMs, db)
     this.onFrame = null; // (timeMs, snoreScore, topLabel, topScore)
     this.onState = null; // ("running" | "interrupted" | "ended")
@@ -111,11 +110,6 @@ export class Listener {
     this.onLevel?.(time, 10 * Math.log10(sum / chunk.length + 1e-12));
 
     if (this.written % (CHUNK * HOP_CHUNKS) === 0 && this.written >= WINDOW) this.classify(time);
-
-    while (this.pending.length && this.written >= this.pending[0].until) {
-      const p = this.pending.shift();
-      p.resolve(this.recent(p.length));
-    }
   }
 
   classify(time) {
@@ -138,12 +132,5 @@ export class Listener {
       out.set(this.ring.subarray(0, end), this.ring.length - start);
     }
     return out;
-  }
-
-  // Resolves with `seconds` of audio once `afterSeconds` more have been recorded.
-  capture(afterSeconds, seconds) {
-    return new Promise((resolve) => {
-      this.pending.push({ until: this.written + Math.round(afterSeconds * RATE), length: Math.round(seconds * RATE), resolve });
-    });
   }
 }
