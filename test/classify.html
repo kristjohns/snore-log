@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>YAMNet clip test</title>
+<script type="module">
+  import { AudioClassifier, FilesetResolver } from "../vendor/mediapipe/audio_bundle.js";
+
+  const files = await FilesetResolver.forAudioTasks("../vendor/mediapipe/wasm");
+  const classifier = await AudioClassifier.createFromOptions(files, {
+    baseOptions: { modelAssetPath: "../model/yamnet.tflite" },
+    scoreThreshold: 0,
+  });
+
+  // Classify a clip in 0.975 s windows every 0.5 s, the same way the app does live.
+  window.classifyUrl = async (url) => {
+    const buf = await (await fetch(url)).arrayBuffer();
+    const audio = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(buf);
+    const sr = audio.sampleRate;
+    const data = audio.getChannelData(0);
+    const win = Math.round(0.975 * sr), hop = Math.round(0.5 * sr);
+    const frames = [];
+    for (let i = 0; i + win <= data.length; i += hop) {
+      const t0 = performance.now();
+      const res = classifier.classify(data.slice(i, i + win), sr);
+      const ms = performance.now() - t0;
+      const cats = res[0].classifications[0].categories;
+      const snore = cats.find((c) => c.categoryName === "Snoring");
+      let rms = 0;
+      for (let j = i; j < i + win; j++) rms += data[j] * data[j];
+      frames.push({
+        snore: snore ? snore.score : 0,
+        snoreIndex: snore ? snore.index : -1,
+        top: cats.slice(0, 3).map((c) => `${c.categoryName}:${c.score.toFixed(2)}`),
+        db: 10 * Math.log10(rms / win + 1e-12),
+        ms,
+        results: res.length,
+      });
+    }
+    return frames;
+  };
+  window.ready = true;
+</script>

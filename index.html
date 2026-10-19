@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Snore Log</title>
+  <meta name="description" content="Records your snoring overnight and shows when and how loud it was. Everything stays on your phone.">
+  <meta name="theme-color" content="#0b0e15">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Snore Log">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="modulepreload" href="js/app.js">
+</head>
+<body>
+  <div id="app">
+    <main>
+      <!-- Tonight -->
+      <section id="view-tonight" class="view" data-tab="tonight">
+        <header class="view-head">
+          <p class="eyebrow" id="tonight-date"></p>
+          <h1>Tonight</h1>
+        </header>
+
+        <div id="install-hint" class="note note-install" hidden>
+          <p><strong>Add Snore Log to your Home Screen.</strong> In Safari, tap Share, then <em>Add to Home Screen</em>. It then opens full screen and its data is safe from Safari's clean-up.</p>
+          <button class="link" id="install-dismiss" type="button">Got it</button>
+        </div>
+
+        <div id="unfinished" class="note note-warn" hidden>
+          <p id="unfinished-text"></p>
+          <div class="row">
+            <button class="btn btn-small" id="unfinished-continue" type="button">Keep recording</button>
+            <button class="btn btn-small btn-quiet" id="unfinished-finish" type="button">Finish night</button>
+          </div>
+        </div>
+
+        <section class="block">
+          <h2>Anything different tonight?</h2>
+          <p class="hint">Tag the night. After a few nights, History shows which of these change your snoring.</p>
+          <div class="chips" id="tonight-tags"></div>
+          <form class="add-tag" id="add-tag-form">
+            <label class="visually-hidden" for="add-tag-input">New tag</label>
+            <input id="add-tag-input" type="text" maxlength="24" placeholder="Add your own tag" autocomplete="off">
+            <button class="btn btn-small btn-quiet" type="submit">Add</button>
+          </form>
+        </section>
+
+        <details class="block checklist" id="checklist">
+          <summary><h2>Before you start</h2></summary>
+          <ol>
+            <li><strong>Plug in your charger.</strong> The screen has to stay on all night for the microphone to keep listening.</li>
+            <li><strong>Put the phone within about 1 m of your head</strong>, screen up, on the nightstand.</li>
+            <li><strong>Turn on Sleep or Do Not Disturb.</strong> A call or an alarm from another app pauses the recording.</li>
+            <li><strong>Turn the brightness all the way down.</strong> The night screen is black, so it gives off very little light.</li>
+            <li><strong>Don't press the side button.</strong> Locking the phone stops the recording.</li>
+          </ol>
+        </details>
+
+        <div class="start">
+          <p class="model-status" id="model-status" role="status">Loading the snore detector…</p>
+          <button class="btn btn-primary btn-big" id="start" type="button" disabled>Start night</button>
+          <button class="btn btn-quiet" id="open-check" type="button">Test the microphone</button>
+          <p class="error" id="start-error" role="alert" hidden></p>
+        </div>
+
+        <button id="last-night" class="card card-link" type="button" hidden>
+          <span class="card-top">
+            <span class="eyebrow">Last night</span>
+            <span class="card-open">Report ›</span>
+          </span>
+          <span class="last-figures">
+            <span class="figure" id="last-snoring"></span>
+            <span class="figure-sub" id="last-sub"></span>
+          </span>
+          <span class="mini-chart" id="last-chart"></span>
+        </button>
+      </section>
+
+      <!-- History -->
+      <section id="view-history" class="view" data-tab="history" hidden>
+        <header class="view-head">
+          <h1>History</h1>
+        </header>
+        <div id="history-empty" class="empty" hidden>
+          <p><strong>No nights yet.</strong></p>
+          <p>Start a night on the Tonight tab. Your report is here in the morning.</p>
+        </div>
+        <div id="history-content">
+          <section class="block">
+            <h2>Snoring per night</h2>
+            <p class="hint">Share of recorded time spent snoring. Tap a column for details.</p>
+            <div class="chart-wrap" id="trend-chart"></div>
+          </section>
+          <section class="block" id="effects-block">
+            <h2>What makes a difference</h2>
+            <div id="effects"></div>
+          </section>
+          <section class="block">
+            <h2>All nights</h2>
+            <ul class="night-list" id="night-list"></ul>
+          </section>
+        </div>
+      </section>
+
+      <!-- Night report -->
+      <section id="view-night" class="view" data-tab="history" hidden>
+        <header class="view-head">
+          <button class="back" id="night-back" type="button">‹ History</button>
+          <p class="eyebrow" id="night-times"></p>
+          <h1 id="night-title"></h1>
+        </header>
+
+        <div class="hero" id="night-hero"></div>
+
+        <dl class="stats" id="night-stats"></dl>
+
+        <section class="block">
+          <h2>Through the night</h2>
+          <div class="legend" id="night-legend"></div>
+          <div class="chart-wrap" id="night-chart"></div>
+        </section>
+
+        <section class="block" id="clips-block">
+          <h2>Recordings</h2>
+          <p class="hint">Short clips from the snoring, made louder so you can hear them.</p>
+          <ul class="clips" id="clips"></ul>
+        </section>
+
+        <section class="block" id="sounds-block">
+          <h2>Other sounds</h2>
+          <p class="hint">Louder sounds that weren't snoring.</p>
+          <div class="sounds" id="sounds"></div>
+        </section>
+
+        <section class="block">
+          <h2>Tags</h2>
+          <div class="chips" id="night-tags"></div>
+          <label class="field-label" for="night-note">Notes</label>
+          <textarea id="night-note" rows="3" placeholder="How did you sleep? Anything else worth remembering?"></textarea>
+        </section>
+
+        <section class="block">
+          <button class="btn btn-danger" id="night-delete" type="button">Delete this night</button>
+        </section>
+      </section>
+
+      <!-- Settings -->
+      <section id="view-settings" class="view" data-tab="settings" hidden>
+        <header class="view-head">
+          <h1>Settings</h1>
+        </header>
+
+        <section class="block">
+          <h2>Detection sensitivity</h2>
+          <div class="segmented" role="radiogroup" aria-label="Detection sensitivity" id="sensitivity">
+            <button type="button" role="radio" data-value="low">Low</button>
+            <button type="button" role="radio" data-value="normal">Normal</button>
+            <button type="button" role="radio" data-value="high">High</button>
+          </div>
+          <p class="hint" id="sensitivity-hint"></p>
+        </section>
+
+        <section class="block">
+          <h2>Recordings</h2>
+          <label class="switch-row" for="save-clips">
+            <span>Save short clips of snoring</span>
+            <input type="checkbox" id="save-clips" role="switch">
+          </label>
+          <label class="field-label" for="keep-clips">Keep clips for</label>
+          <select id="keep-clips">
+            <option value="7">7 days</option>
+            <option value="30">30 days</option>
+            <option value="0">Always</option>
+          </select>
+          <p class="hint">Older clips are deleted; the night's statistics stay. <span id="storage-used"></span></p>
+        </section>
+
+        <section class="block">
+          <h2>Backup</h2>
+          <p class="hint">Saves your nights, tags and notes as a file, without the audio. Import it again on this or another phone.</p>
+          <div class="row">
+            <button class="btn btn-small" id="export" type="button">Export nights</button>
+            <label class="btn btn-small btn-quiet" for="import">Import</label>
+            <input type="file" id="import" accept="application/json,.json" class="visually-hidden">
+          </div>
+          <p class="hint" id="backup-status" role="status"></p>
+        </section>
+
+        <section class="block">
+          <h2>About</h2>
+          <div class="prose">
+            <p>Snore Log listens with the phone's microphone and checks every half second whether the last second sounded like snoring. It uses YAMNet, a sound recognition model from Google that runs on the phone. No audio or data leaves your phone.</p>
+            <p>Loudness is shown in decibels above your room's background noise, not as an absolute sound level. Phones aren't calibrated sound meters.</p>
+            <p><strong>Snore Log is not a medical device.</strong> If you or a partner notice pauses in your breathing, gasping or choking at night, or you are very sleepy during the day, talk to a doctor. Those can be signs of sleep apnea, which needs a proper sleep study.</p>
+            <p class="credits">Snore detection: YAMNet model and MediaPipe Audio, © Google, Apache License 2.0.</p>
+          </div>
+        </section>
+
+        <section class="block">
+          <h2>Delete everything</h2>
+          <p class="hint">Removes all nights and recordings from this phone.</p>
+          <button class="btn btn-danger" id="delete-all" type="button">Delete all data</button>
+        </section>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Sections">
+      <button type="button" data-go="tonight" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+        Tonight
+      </button>
+      <button type="button" data-go="history">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/></svg>
+        History
+      </button>
+      <button type="button" data-go="settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+        Settings
+      </button>
+    </nav>
+  </div>
+
+  <!-- Night screen while recording -->
+  <div id="recording" class="recording" hidden>
+    <div class="rec-ui">
+      <p class="rec-state"><span class="rec-dot" aria-hidden="true"></span><span id="rec-state">Listening</span></p>
+      <p class="rec-clock"><span id="rec-clock"></span><span class="rec-period" id="rec-period"></span></p>
+      <p class="rec-meta" id="rec-meta"></p>
+      <div class="rec-meter" aria-hidden="true"><span id="rec-level"></span></div>
+      <p class="rec-warning" id="rec-warning" hidden></p>
+      <p class="rec-notice" id="rec-notice" hidden></p>
+    </div>
+    <button class="hold" id="hold-stop" type="button">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="hold-track" cx="32" cy="32" r="29"/><circle class="hold-ring" cx="32" cy="32" r="29"/></svg>
+      <span>Hold to end night</span>
+    </button>
+    <div class="rec-paused" id="rec-paused" hidden>
+      <p><strong>Recording paused</strong></p>
+      <p id="rec-paused-text">Something else took the microphone.</p>
+      <button class="btn btn-primary" id="rec-resume" type="button">Continue recording</button>
+    </div>
+  </div>
+
+  <!-- Microphone test -->
+  <div id="check" class="sheet" role="dialog" aria-modal="true" aria-labelledby="check-title" hidden>
+    <div class="sheet-body">
+      <header class="sheet-head">
+        <h2 id="check-title">Microphone test</h2>
+        <button class="link" id="check-close" type="button">Done</button>
+      </header>
+      <p class="hint">Put the phone where it will be tonight and make a few fake snores. The snoring bar should jump past the line.</p>
+      <div class="meter-block">
+        <div class="meter-label"><span>Loudness above room</span><span id="check-level">–</span></div>
+        <div class="meter"><span id="check-level-bar"></span></div>
+      </div>
+      <div class="meter-block">
+        <div class="meter-label"><span>Snoring</span><span id="check-snore">–</span></div>
+        <div class="meter meter-snore"><span id="check-snore-bar"></span><i id="check-threshold"></i></div>
+      </div>
+      <p class="check-heard">Hears: <strong id="check-label">–</strong></p>
+      <p class="check-count" id="check-count"></p>
+      <p class="error" id="check-error" role="alert" hidden></p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
