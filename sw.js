@@ -1,6 +1,7 @@
 // Keeps the app and the snore model available offline.
-// Bump VERSION with every release so phones pick up the new files.
-const VERSION = "v2";
+// Bump VERSION with every release so phones pick up the new files, and update
+// the version shown in Settings (index.html) to match.
+const VERSION = "v3";
 const CACHE = `snore-log-${VERSION}`;
 const CORE = [
   "./",

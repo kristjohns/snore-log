@@ -2,6 +2,8 @@
 
 A web app for iPhone that listens overnight and shows when you snored, for how long and how loudly. It runs entirely on the phone: audio and results are stored on the device and never uploaded.
 
+The website only delivers the app itself. Recordings live in the app's storage on the phone that made them, so someone else opening the link gets an empty app of their own. The page's Content Security Policy only lets it connect to its own site, so it can't send data anywhere else.
+
 **Open it:** https://kristjohns.github.io/snore-log/
 
 ## Using it
@@ -61,3 +63,5 @@ The browser tests use Playwright with Chromium. ESC-50 clips (CC BY-NC) are used
 ## Credits
 
 Snore detection uses the YAMNet model and MediaPipe Audio (`@mediapipe/tasks-audio` 1.0.1), © Google, under the Apache License 2.0 (`vendor/LICENSE-APACHE-2.0.txt`).
+
+`vendor/mediapipe/audio_bundle.js` is modified: MediaPipe creates a usage logger that sends performance statistics (device type, library version, timings) to `odml.pa.googleapis.com`, and Snore Log doesn't create it. The change is marked "Snore Log" in the file.

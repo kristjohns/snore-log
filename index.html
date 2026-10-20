@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Snore Log</title>
+  <!-- The page may only talk to its own site, so recordings and results can't be sent anywhere. -->
+  <meta http-equiv="Content-Security-Policy" content="connect-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; form-action 'none'">
   <meta name="description" content="Records your snoring overnight and shows when and how loud it was. Everything stays on your phone.">
   <meta name="theme-color" content="#0b0e15">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -198,6 +200,7 @@
             <p>Loudness is shown in decibels above your room's background noise, not as an absolute sound level. Phones aren't calibrated sound meters.</p>
             <p><strong>Snore Log is not a medical device.</strong> If you or a partner notice pauses in your breathing, gasping or choking at night, or you are very sleepy during the day, talk to a doctor. Those can be signs of sleep apnea, which needs a proper sleep study.</p>
             <p class="credits">Snore detection: YAMNet model and MediaPipe Audio, © Google, Apache License 2.0.</p>
+            <p class="credits">Version 3</p>
           </div>
         </section>
 

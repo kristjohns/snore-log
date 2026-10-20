@@ -105,3 +105,10 @@ test("clips follow the snoring, between 12 and 30 seconds", () => {
   // Snoring that goes on: cut at 30 s.
   assert.equal(clipLength(start, 26, 25.5), 30);
 });
+
+test("the version shown in Settings matches the service worker's", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const sw = await readFile(new URL("../sw.js", import.meta.url), "utf8");
+  assert.equal(html.match(/>Version (\d+)</)[1], sw.match(/const VERSION = "v(\d+)"/)[1]);
+});
