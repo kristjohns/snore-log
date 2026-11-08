@@ -137,13 +137,16 @@ if (step === 'cues') {
   const out = path.join(ROOT, 'out', `${spec.meta.name}.mp4`);
   mkdirSync(path.dirname(out), { recursive: true });
   const srt = path.join(BUILD, 'captions.srt');
+  // Cap at the video's length (-shortest would stop at the last subtitle).
+  const vdur = spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0',
+    path.join(BUILD, 'video.mp4')]).stdout.toString().trim();
   const r = spawnSync('ffmpeg', [
     '-y', '-v', 'error',
     '-i', path.join(BUILD, 'video.mp4'), '-i', path.join(BUILD, 'audio.wav'), '-i', srt,
     '-map', '0:v', '-map', '1:a', '-map', '2:s',
     '-c:v', 'copy', '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11', '-ar', '48000', '-c:a', 'aac', '-b:a', '160k',
     '-c:s', 'mov_text', '-metadata:s:s:0', 'language=eng', '-metadata:s:a:0', 'language=eng',
-    '-metadata', `title=${spec.meta.title}`, '-movflags', '+faststart', '-shortest', out,
+    '-metadata', `title=${spec.meta.title}`, '-movflags', '+faststart', '-t', vdur, out,
   ], { stdio: 'inherit' });
   if (r.status !== 0) process.exit(1);
   writeFileSync(path.join(ROOT, 'out', `${spec.meta.name}.srt`), readFileSync(srt));
