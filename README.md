@@ -15,6 +15,15 @@ The website only delivers the app itself. Recordings live in the app's storage o
 
 Use **Test the microphone** first to check that a few fake snores push the snoring bar past the line.
 
+## Videos: how to snore less
+
+[`videos/`](videos/README.md) has two narrated, animated videos:
+
+- **[Why we snore, and what actually helps at home](videos/out/snoring-explained.mp4)** (6 min). What happens in the airway, and the research behind each home fix.
+- **[Follow-along exercise routine](videos/out/snoring-exercises.mp4)** (10 min). The mouth and throat exercises from a 2015 snoring trial, with every repetition counted and timed.
+
+To see whether something works for you, add your own tag (such as "Exercises") on the Tonight tab. History then compares nights with and without it.
+
 ## What the report shows
 
 - **Snoring time.** A minute counts as snoring when it has at least two snore sounds, since snoring repeats with each breath.

@@ -1,0 +1,9 @@
+{
+  "name": "snore-log-videos",
+  "private": true,
+  "type": "module",
+  "description": "Renders the snoring explainer and exercise videos frame by frame",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.100"
+  }
+}

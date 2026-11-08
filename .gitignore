@@ -1,3 +1,5 @@
 test/audio
 node_modules/
 test/results/
+videos/build/
+videos/.venv/
