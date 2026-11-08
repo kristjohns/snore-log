@@ -103,7 +103,7 @@ if (step === 'cues') {
   } else {
     await renderRange(tl, f0, f1, path.join(BUILD, 'video.mp4'));
   }
-  writeFileSync(path.join(BUILD, 'timeline.json'), JSON.stringify({
+  if (worker == null) writeFileSync(path.join(BUILD, 'timeline.json'), JSON.stringify({
     duration: tl.duration,
     segments: tl.segments.map((s) => ({ id: s.id, start: +s.start.toFixed(2), dur: +s.dur.toFixed(2) })),
   }, null, 1));
