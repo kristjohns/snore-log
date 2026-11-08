@@ -318,7 +318,11 @@ function stepsCard(ctx, ex, lt, opts = {}) {
   card(ctx, 1040, 680, 820, 330);
   if (phaseLabel != null) {
     const pl = phaseLabel || ' ';
-    text(ctx, pl.toUpperCase(), 1450, 790, { size: 64, weight: 800, family: DISPLAY, align: 'center', color: phaseLabel ? C.ink : C.dim, tracking: 2 });
+    // Shrink long labels so they fit the card.
+    ctx.font = `800 64px ${DISPLAY}`;
+    const wide = ctx.measureText(pl.toUpperCase()).width + pl.length * 2;
+    const fit = Math.min(64, Math.floor((64 * 720) / Math.max(1, wide)));
+    text(ctx, pl.toUpperCase(), 1450, 790, { size: fit, weight: 800, family: DISPLAY, align: 'center', color: phaseLabel ? C.ink : C.dim, tracking: 2 });
     roundRect(ctx, 1110, 840, 680, 14, 7);
     ctx.fillStyle = 'rgba(255,255,255,0.08)';
     ctx.fill();
